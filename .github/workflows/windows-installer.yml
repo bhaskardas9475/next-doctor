@@ -1,0 +1,74 @@
+name: Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-installer:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: yarn
+
+      - name: Enable Yarn
+        shell: pwsh
+        run: corepack enable
+
+      - name: Install dependencies
+        shell: pwsh
+        run: yarn install --non-interactive
+
+      - name: Build standalone Next.js app
+        shell: pwsh
+        run: yarn build
+
+      - name: Prepare installer files
+        shell: pwsh
+        env:
+          NODE_VERSION: 22.14.0
+        run: |
+          $ErrorActionPreference = "Stop"
+          $dist = Join-Path $PWD "packaging\dist"
+          Remove-Item $dist -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path "$dist\app", "$dist\runtime" | Out-Null
+
+          Copy-Item ".next\standalone\*" "$dist\app" -Recurse -Force
+          New-Item -ItemType Directory -Force -Path "$dist\app\.next\static" | Out-Null
+          Copy-Item ".next\static\*" "$dist\app\.next\static" -Recurse -Force
+          New-Item -ItemType Directory -Force -Path "$dist\app\public" | Out-Null
+          Copy-Item "public\*" "$dist\app\public" -Recurse -Force
+
+          $nodeZip = Join-Path $env:RUNNER_TEMP "node-v$env:NODE_VERSION-win-x64.zip"
+          $nodeUrl = "https://nodejs.org/dist/v$env:NODE_VERSION/node-v$env:NODE_VERSION-win-x64.zip"
+          Invoke-WebRequest -Uri $nodeUrl -OutFile $nodeZip
+          Expand-Archive -Path $nodeZip -DestinationPath $env:RUNNER_TEMP -Force
+          Copy-Item "$env:RUNNER_TEMP\node-v$env:NODE_VERSION-win-x64\*" "$dist\runtime" -Recurse -Force
+
+          New-Item -ItemType Directory -Force -Path "packaging\output" | Out-Null
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress --yes
+
+      - name: Build setup.exe
+        shell: pwsh
+        run: '& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "packaging\installer.iss"'
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-doctor-windows-installer
+          path: packaging/output/setup.exe
+          if-no-files-found: error

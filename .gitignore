@@ -20,6 +20,11 @@
 # production
 /build
 
+# local SQLite database and installer staging files
+/data/
+/packaging/dist/
+/packaging/output/
+
 # misc
 .DS_Store
 *.pem
