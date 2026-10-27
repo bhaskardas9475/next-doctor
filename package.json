@@ -6,23 +6,36 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push",
+    "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "antd": "^5.27.6",
+    "@hookform/resolvers": "^5.1.1",
+    "@prisma/client": "^6.17.0",
+    "jose": "^6.1.0",
     "next": "16.4.2",
-    "better-sqlite3": "^12.4.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "sqlite3": "^5.1.7"
+    "react-hook-form": "^7.62.0",
+    "sonner": "^2.0.7",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "prettier": "^3.6.2",
+    "prisma": "^6.17.0",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   },
   "packageManager": "yarn@1.22.22"

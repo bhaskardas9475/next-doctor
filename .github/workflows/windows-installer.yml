@@ -11,6 +11,11 @@ permissions:
 jobs:
   build-windows-installer:
     runs-on: windows-latest
+    env:
+      DATABASE_URL: file:./prisma/dev.db
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET || 'windows-installer-development-secret' }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'doctor@example.com' }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'change-me' }}
 
     steps:
       - name: Check out source
@@ -29,6 +34,13 @@ jobs:
       - name: Install dependencies
         shell: pwsh
         run: yarn install --non-interactive
+
+      - name: Generate and seed Prisma database
+        shell: pwsh
+        run: |
+          yarn prisma:generate
+          yarn prisma:push
+          yarn prisma:seed
 
       - name: Build standalone Next.js app
         shell: pwsh
@@ -49,6 +61,14 @@ jobs:
           Copy-Item ".next\static\*" "$dist\app\.next\static" -Recurse -Force
           New-Item -ItemType Directory -Force -Path "$dist\app\public" | Out-Null
           Copy-Item "public\*" "$dist\app\public" -Recurse -Force
+          New-Item -ItemType Directory -Force -Path "$dist\app\data" | Out-Null
+          Copy-Item "prisma\dev.db" "$dist\app\data\clinic.db" -Force
+          @"
+          DATABASE_URL=file:./data/clinic.db
+          SESSION_SECRET=$env:SESSION_SECRET
+          ADMIN_EMAIL=$env:ADMIN_EMAIL
+          ADMIN_PASSWORD=$env:ADMIN_PASSWORD
+          "@ | Set-Content "$dist\app\.env"
 
           $nodeZip = Join-Path $env:RUNNER_TEMP "node-v$env:NODE_VERSION-win-x64.zip"
           $nodeUrl = "https://nodejs.org/dist/v$env:NODE_VERSION/node-v$env:NODE_VERSION-win-x64.zip"

@@ -31,6 +31,7 @@ if (-not (Test-Path $serverPath)) {
 
 $env:PORT = $port
 $env:HOSTNAME = "127.0.0.1"
+$env:DATABASE_URL = "file:$appRoot\data\clinic.db"
 
 Start-Process `
   -FilePath $nodePath `

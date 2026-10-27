@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Medicine {
+  id                    Int                   @id @default(autoincrement())
+  name                  String                @unique
+  dosageFormStrength    String?
+  notes                 String?
+  createdAt             DateTime              @default(now())
+  prescriptionMedicines PrescriptionMedicine[]
+}
+
+model Test {
+  id                Int                @id @default(autoincrement())
+  name              String             @unique
+  description       String?
+  createdAt         DateTime           @default(now())
+  prescriptionTests PrescriptionTest[]
+}
+
+model Patient {
+  id            Int            @id @default(autoincrement())
+  code          String         @unique
+  name          String
+  age           Int
+  gender        String
+  phone         String?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  prescriptions Prescription[]
+}
+
+model Prescription {
+  id                    Int                   @id @default(autoincrement())
+  number                String                @unique
+  patientId             Int
+  diagnosisNotes        String?
+  createdAt             DateTime              @default(now())
+  patient               Patient               @relation(fields: [patientId], references: [id])
+  medicines             PrescriptionMedicine[]
+  tests                 PrescriptionTest[]
+}
+
+model PrescriptionMedicine {
+  id             Int          @id @default(autoincrement())
+  prescriptionId Int
+  medicineId     Int
+  dosage         String
+  frequency      String
+  duration       String
+  instructions   String?
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  medicine       Medicine     @relation(fields: [medicineId], references: [id])
+  @@unique([prescriptionId, medicineId])
+}
+
+model PrescriptionTest {
+  id             Int          @id @default(autoincrement())
+  prescriptionId Int
+  testId         Int
+  instructions   String?
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  test           Test         @relation(fields: [testId], references: [id])
+  @@unique([prescriptionId, testId])
+}
+
+model Counter {
+  key   String @id
+  value Int    @default(0)
+}
