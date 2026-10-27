@@ -540,6 +540,10 @@ button {
   margin: 0 auto;
   background: white;
   padding: 48px;
+  section {
+    border-bottom: 1px solid #000;
+    padding: 10px 0;
+  }
 }
 .print-toolbar {
   display: flex;
@@ -559,7 +563,6 @@ button {
 }
 .signature {
   margin-top: 96px;
-  border-top: 1px solid #64748b;
   padding-top: 8px;
   text-align: right;
 }

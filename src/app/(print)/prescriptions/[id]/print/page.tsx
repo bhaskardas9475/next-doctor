@@ -29,15 +29,8 @@ export default async function PrintPage({
         </Link>
         <PrintButton />
       </div>
-      <header className="print-header">
-        <h1>{clinic.name}</h1>
-        <p>
-          {clinic.doctor} · {clinic.qualification}
-        </p>
-        <p>Registration: {clinic.registration}</p>
-        <p>
-          {clinic.address} · {clinic.phone}
-        </p>
+      <header className="print-header" style={{height:'140px'}}>
+       
       </header>
       <div className="print-meta">
         <div>
@@ -54,12 +47,12 @@ export default async function PrintPage({
       </div>
       {prescription.diagnosisNotes && (
         <section>
-          <h2>Diagnosis / notes</h2>
+          <h4><strong>Diagnosis / notes</strong></h4>
           <p>{prescription.diagnosisNotes}</p>
         </section>
       )}
       <section>
-        <h2>Medicines</h2>
+        <h4><strong>Medicines</strong></h4>
         <table className="print-table">
           <thead>
             <tr>
@@ -86,7 +79,7 @@ export default async function PrintPage({
         </table>
       </section>
       <section>
-        <h2>Tests</h2>
+        <h4><strong>Tests</strong></h4>
         <ul>
           {prescription.tests.map((item) => (
             <li key={item.id}>
